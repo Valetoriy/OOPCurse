@@ -14,8 +14,41 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>Меню</string>
+    </property>
+    <addaction name="opendb"/>
+    <addaction name="savedb"/>
+    <addaction name="ABOUT"/>
+   </widget>
+   <addaction name="menuMenu"/>
+  </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="ABOUT">
+   <property name="text">
+    <string>О программе</string>
+   </property>
+  </action>
+  <action name="opendb">
+   <property name="text">
+    <string>Октрыть БД</string>
+   </property>
+  </action>
+  <action name="savedb">
+   <property name="text">
+    <string>Сохранить БД</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

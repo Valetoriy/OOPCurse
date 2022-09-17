@@ -15,6 +15,13 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_ABOUT_triggered();
+
+    void on_opendb_triggered();
+
+    void on_savedb_triggered();
+
 private:
     Ui::MainWindow *ui;
 };
