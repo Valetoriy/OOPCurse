@@ -6,9 +6,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(CURSE LANGUAGES C CXX)
 
+include_directories(extern)
+
 add_executable(${PROJECT_NAME} 
-    src/glad.c
-    src/stb_image.cpp
+    extern/glad.c
+    extern/stb_image.cpp
     src/Shader.cpp
     src/main.cpp)
 
