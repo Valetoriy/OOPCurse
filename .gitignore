@@ -1,4 +1,3 @@
-/build-curse-Desktop-Debug
-/curse/.cache
-/curse/compile_commands.json
-*.txt
+/build
+/.cache
+CURSE
