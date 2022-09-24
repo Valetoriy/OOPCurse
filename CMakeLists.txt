@@ -12,6 +12,8 @@ add_executable(${PROJECT_NAME}
     extern/glad.c
     extern/stb_image.cpp
     src/Shader.cpp
+    src/GLContext.cpp
+    src/Entity.cpp
     src/main.cpp)
 
 # set_property(TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
