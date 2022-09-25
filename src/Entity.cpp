@@ -3,33 +3,35 @@
 Entity::Entity(float in_x, float in_y) noexcept : x{in_x}, y{in_y} {}
 
 auto Ball::draw() const noexcept -> void {
-    glBindVertexArray(VAO);
-    shader.use();
-    shader.setFloat("x_o", x);
-    shader.setFloat("y_o", y);
+    glBindVertexArray(m_VAO);
+    glBindTexture(GL_TEXTURE_2D, m_TEX);
+    m_shader.use();
+    m_shader.setFloat("x_o", x);
+    m_shader.setFloat("y_o", y);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);  // NOLINT
 }
 
-Ball::Ball(float in_x, float in_y, float ratio)
-    : Entity{in_x, in_y}, shader{"src/BallVS.glsl", "src/BallFS.glsl"} {
+auto Ball::radius() const noexcept -> float { return m_radius; }
+
+Ball::Ball(float in_x, float in_y, float ratio, float in_r) noexcept
+    : Entity{in_x, in_y},
+      m_shader{"src/BallVS.glsl", "src/BallFS.glsl"},
+      m_radius{in_r} {
     unsigned int VAOid;
     glGenVertexArrays(1, &VAOid);
-    VAO = VAOid;
+    m_VAO = VAOid;
     glBindVertexArray(VAOid);
 
     // clang-format off
         float vertices[] = {
-            -0.05f, 0.05f, 0.0f, 1.0f,  // NOLINT
-            0.05f, 0.05f, 1.0f, 1.0f,   // NOLINT
-            0.05f, -0.05f, 1.0f, 0.0f,  // NOLINT
-            -0.05f, -0.05f, 0.0f, 0.0f  // NOLINT
+            -m_radius * ratio, m_radius, 0.0f, 1.0f,  // NOLINT
+            m_radius * ratio, m_radius, 1.0f, 1.0f,   // NOLINT
+            m_radius * ratio, -m_radius, 1.0f, 0.0f,  // NOLINT
+            -m_radius * ratio, -m_radius, 0.0f, 0.0f  // NOLINT
         };
     // clang-format on
     unsigned short indices[] = {0, 1, 2, 0, 2, 3};
-    for (int i{}; (unsigned long)i < sizeof(vertices) / sizeof(float); i += 4) {
-        vertices[i] *= ratio;
-    }
     unsigned int VBOid;
     glGenBuffers(1, &VBOid);
     glBindBuffer(GL_ARRAY_BUFFER, VBOid);
@@ -47,10 +49,11 @@ Ball::Ball(float in_x, float in_y, float ratio)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
                           (void *)(2 * sizeof(float)));  // NOLINT
 
-    unsigned int facetx;
-    glGenTextures(1, &facetx);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, facetx);
+    unsigned int balltx;
+    glGenTextures(1, &balltx);
+    m_TEX = balltx;
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, balltx);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -70,39 +73,38 @@ Ball::Ball(float in_x, float in_y, float ratio)
         puts("Ошибка при загрузке изображения!");
     stbi_image_free(data);
 
-    shader.setInt("tex", 0);
+    m_shader.setInt("tex", 1);
 }
 
 auto Board::draw() const noexcept -> void {
-    glBindVertexArray(VAO);
-    shader.use();
-    shader.setFloat("x_o", x);
-    shader.setFloat("y_o", y);
+    glBindVertexArray(m_VAO);
+    m_shader.use();
+    m_shader.setFloat("x_o", x);
+    m_shader.setFloat("y_o", y);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);  // NOLINT
 }
 
-Board::Board(float in_x, float in_y, float ratio)
+auto Board::width() const noexcept -> float { return m_width; }
+
+auto Board::height() const noexcept -> float { return m_height; }
+
+auto Board::speed() const noexcept -> float { return m_speed; }
+
+Board::Board(float in_x, float in_y, float ratio, float h_w, float h_h) noexcept
     : Entity{in_x, in_y},
-      shader{"src/BoardVS.glsl", "src/BoardFS.glsl"},
-      speed{1.5f} {  // NOLINT
+      m_shader{"src/BoardVS.glsl", "src/BoardFS.glsl"},
+      m_speed{1.8f},  // NOLINT
+      m_width{h_w * ratio},
+      m_height{h_h} {
     unsigned int VAOid;
     glGenVertexArrays(1, &VAOid);
-    VAO = VAOid;
+    m_VAO = VAOid;
     glBindVertexArray(VAOid);
 
-    // clang-format off
-        float vertices[] = {
-            -0.02f, 0.2f,  // NOLINT
-            0.02f, 0.2f,   // NOLINT
-            0.02f, -0.2f,  // NOLINT
-            -0.02f, -0.2f  // NOLINT
-        };
-    // clang-format on
+    float vertices[] = {-m_width, h_h,  m_width,  h_h,
+                        m_width,  -h_h, -m_width, -h_h};
     unsigned short indices[] = {0, 1, 2, 0, 2, 3};
-    for (int i{}; (unsigned long)i < sizeof(vertices) / sizeof(float); i += 2) {
-        vertices[i] *= ratio;
-    }
     unsigned int VBOid;
     glGenBuffers(1, &VBOid);
     glBindBuffer(GL_ARRAY_BUFFER, VBOid);
@@ -117,3 +119,30 @@ Board::Board(float in_x, float in_y, float ratio)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 }
+
+auto Text::draw() const noexcept -> void {
+    gltBeginDraw();
+
+    char str[30];               // NOLINT
+    sprintf(str, "%u", m_val);  // NOLINT
+    gltSetText(m_txt, str);
+
+    gltColor(m_color[0], m_color[1], 0, 1);
+    gltDrawText2D(m_txt, x, y, m_scale);
+
+    gltEndDraw();
+}
+
+auto Text::value() const noexcept -> unsigned int { return m_val; }
+
+auto Text::operator++() noexcept -> void { ++m_val; }
+
+Text::Text(float in_x, float in_y, float in_s, unsigned int value, float red,
+           float green) noexcept
+    : Entity{in_x, in_y},
+      m_txt{gltCreateText()},
+      m_scale{in_s},
+      m_val{value},
+      m_color{red, green} {}
+
+Text::~Text() { gltDeleteText(m_txt); }
