@@ -29,8 +29,8 @@ auto main() -> int {  // NOLINT
         ball.y = 0;
         float rand_deg{dist(gen)};
         ball.dx =
-            cosf(rand_deg / 180 * f_pi) * 0.015f * context.ratio();  // NOLINT
-        ball.dy = sinf(rand_deg / 180 * f_pi) * 0.015f;              // NOLINT
+            cosf(rand_deg / 180 * f_pi) * 2.5f * context.ratio();  // NOLINT
+        ball.dy = sinf(rand_deg / 180 * f_pi) * 2.5f;              // NOLINT
 
         enemy.y = 0;
     };
@@ -57,8 +57,8 @@ auto main() -> int {  // NOLINT
             ResetGame();
 
         // Обновляем позицию шара
-        ball.x += ball.dx;
-        ball.y += ball.dy;
+        ball.x += ball.dx * d_t;
+        ball.y += ball.dy * d_t;
 
         // Обновляем позицию противника
         if (ball.y > enemy.height() - 1 and ball.y < 1 - enemy.height()) {
